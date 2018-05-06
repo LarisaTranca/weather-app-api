@@ -4,6 +4,8 @@ import FacebookStrategy from 'passport-facebook';
 import GoogleStrategy from 'passport-google-oauth20';
 // Import Facebook and Google OAuth apps configs
 import { facebook, google } from './config';
+var index = require('./routes/index');
+var users = require('./routes/users');
 
 // Transform Facebook profile because Facebook and Google profile objects look different
 // and we want to transform them into user objects that have the same set of attributes
@@ -40,7 +42,8 @@ passport.deserializeUser((user, done) => done(null, user));
 
 // Initialize http server
 const app = express();
-
+app.set('views', __dirname + '/views'); // general config
+app.set('view engine', 'pug');
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
@@ -60,6 +63,8 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/auth/google' }),
   (req, res) => res.redirect('OAuthLogin://login?user=' + JSON.stringify(req.user)));
 
+  app.get('/', index);
+  app.get('/users', users);
 // Launch the server on the port 3000
 const server = app.listen(3000, () => {
   const { address, port } = server.address();
